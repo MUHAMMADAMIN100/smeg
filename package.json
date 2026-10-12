@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "fetch:images": "node scripts/fetch-smeg-images.mjs --list scripts/skus.txt"
   },
   "dependencies": {
     "clsx": "^2.1.1",

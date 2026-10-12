@@ -1,26 +1,223 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Brand palette (from Instagram smeg_tjk) ---------- */
+@theme {
+  --color-cream: #f6f1e8;
+  --color-cream-50: #fbf8f3;
+  --color-paper: #fffdf9;
+  --color-stone: #e9dfd1;
+  --color-stone-200: #dccfbe;
+  --color-stone-300: #c9b9a3;
+  --color-ink: #15130f;
+  --color-ink-700: #3b372f;
+  --color-ink-500: #6b655b;
+  --color-ink-300: #a39b8f;
+  --color-smeg: #d7282f;
+  --color-smeg-600: #b81f26;
+  --color-pastel-blue: #a8d3e6;
+  --color-pastel-pink: #f3c3ce;
+  --color-pastel-cream: #f2e2b8;
+  --color-pastel-mint: #bfdcc9;
+  --color-pastel-butter: #fff4d6;
+  --color-pastel-lilac: #d9cde8;
+
+  --font-display: var(--font-prata), "Prata", Georgia, serif;
+  --font-sans: var(--font-onest), "Onest", system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --radius-blob: 42% 58% 60% 40% / 45% 40% 60% 55%;
+}
+
+/* ---------- Semantic tokens, switch with .dark ---------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f1e8;
+  --bg-elevated: #fbf8f3;
+  --surface: #fffdf9;
+  --surface-2: #efe7da;
+  --text: #15130f;
+  --text-muted: #6b655b;
+  --text-faint: #a39b8f;
+  --line: rgba(21, 19, 15, 0.12);
+  --line-strong: rgba(21, 19, 15, 0.28);
+  --tray: #fffdf9;
+  --shadow-color: 30 20% 20%;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121110;
+  --bg-elevated: #181614;
+  --surface: #1c1a17;
+  --surface-2: #26231f;
+  --text: #f3eee6;
+  --text-muted: #b3aa9c;
+  --text-faint: #7a7368;
+  --line: rgba(243, 238, 230, 0.12);
+  --line-strong: rgba(243, 238, 230, 0.3);
+  --tray: #f6f1e8;
+  --shadow-color: 30 10% 2%;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--text);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-faint: var(--text-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-tray: var(--tray);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---------- Base ---------- */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv05";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+::selection {
+  background: var(--color-smeg);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-smeg);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- Film grain overlay ---------- */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.dark .grain::before {
+  opacity: 0.12;
+  mix-blend-mode: screen;
+}
+
+/* ---------- Typography helpers ---------- */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ---------- Product photo trays ---------- */
+.product-photo {
+  mix-blend-mode: multiply;
+}
+
+/* ---------- Marquee ---------- */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* ---------- Blob float ---------- */
+@keyframes blob {
+  0%,
+  100% {
+    border-radius: 42% 58% 60% 40% / 45% 40% 60% 55%;
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    border-radius: 58% 42% 40% 60% / 40% 60% 40% 60%;
+    transform: rotate(6deg) scale(1.04);
+  }
+}
+
+.blob {
+  animation: blob 14s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+  }
+}
+
+/* ---------- Hairline rules ---------- */
+.rule {
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Scrollbar for horizontal shelves ---------- */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Image loading shimmer ---------- */
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
 }

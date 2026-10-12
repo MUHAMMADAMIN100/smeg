@@ -20,10 +20,10 @@ describe("артикулы в компонентах", () => {
     const missing: string[] = [];
     for (const file of files) {
       const text = readFileSync(file, "utf8");
-      // Артикулы SMEG: 3–5 букв, цифры, суффикс, в кавычках, например "FAB28RPB6" или "TSF01PBEU".
+      // Артикулы SMEG не короче 7 знаков, например "TR90IPP" или "TSF01PBEU"; "FAB28" — это модель, не артикул.
       for (const m of text.matchAll(/"([A-Z]{2,5}\d{1,4}[A-Z0-9]{0,6})"/g)) {
         const sku = m[1];
-        if (!/\d/.test(sku) || sku.length < 5) continue;
+        if (!/\d/.test(sku) || sku.length < 7) continue;
         const target = path.join(process.cwd(), "public", productImage(sku));
         if (!existsSync(target)) missing.push(`${path.relative(process.cwd(), file)} → ${sku}`);
       }

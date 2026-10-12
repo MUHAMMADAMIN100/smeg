@@ -1,11 +1,16 @@
 import { products } from "@/data/products";
-import { categories, type CategoryId } from "@/data/categories";
+import { categories, categoryById, type CategoryId } from "@/data/categories";
 import { colors, type ColorId } from "@/data/colors";
 import type { Product, Variant } from "@/data/types";
 
 /** Путь к фото варианта. Файлы лежат в public/products/<sku>.jpg. */
 export function productImage(sku: string): string {
   return `/products/${sku.toLowerCase()}.jpg`;
+}
+
+/** Прозрачная вырезка товара для тёмных фонов, public/cutouts/<sku>.webp. */
+export function productCutout(sku: string): string {
+  return `/cutouts/${sku.toLowerCase()}.webp`;
 }
 
 export function getProduct(slug: string): Product | undefined {
@@ -49,12 +54,46 @@ export function getCategoryCounts(): Record<CategoryId, number> {
   return counts;
 }
 
-export type CatalogFilter = { category?: CategoryId | null; color?: ColorId | null };
+export type CatalogFilter = {
+  category?: CategoryId | null;
+  /** Ограничить набором категорий, например группой «Крупная техника». */
+  categories?: CategoryId[] | null;
+  color?: ColorId | null;
+};
 
 export function filterProducts(filter: CatalogFilter): Product[] {
   return products.filter((p) => {
     if (filter.category && p.category !== filter.category) return false;
+    if (filter.categories && !filter.categories.includes(p.category)) return false;
     if (filter.color && !p.variants.some((v) => v.color === filter.color)) return false;
     return true;
   });
+}
+
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/g, " ").trim();
+}
+
+/** Поиск по названию, модели, артикулам и категории. Пустой запрос — пустой результат. */
+export function searchProducts(query: string, limit = 8): Product[] {
+  const q = normalize(query);
+  if (!q) return [];
+  const terms = q.split(" ");
+  const scored = products
+    .map((p) => {
+      const haystack = normalize(
+        [p.name, p.model, categoryById[p.category].name, p.short, ...p.variants.map((v) => v.sku)].join(" "),
+      );
+      let score = 0;
+      for (const t of terms) {
+        if (!haystack.includes(t)) return { p, score: -1 };
+        if (normalize(p.model).startsWith(t)) score += 3;
+        if (normalize(p.name).includes(t)) score += 2;
+        score += 1;
+      }
+      return { p, score };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((x) => x.p);
 }

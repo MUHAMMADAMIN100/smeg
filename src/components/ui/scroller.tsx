@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ScrollerProps = {
@@ -13,7 +13,10 @@ type ScrollerProps = {
   aside?: React.ReactNode;
 };
 
-/** Горизонтальная «полка» с прокруткой, стрелками и полосой прогресса. */
+const arrow =
+  "flex size-11 cursor-pointer items-center justify-center rounded-full border border-ink/30 text-ink transition-[background-color,color,border-color] duration-300 hover:border-ink hover:bg-ink hover:text-white disabled:cursor-default disabled:opacity-25 disabled:hover:border-ink/30 disabled:hover:bg-transparent disabled:hover:text-ink";
+
+/** Горизонтальная карусель с прокруткой, стрелками и полосой прогресса. */
 export function Scroller({ children, className, trackClassName, ariaLabel, aside }: ScrollerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState({ start: true, end: false, progress: 0 });
@@ -65,30 +68,18 @@ export function Scroller({ children, className, trackClassName, ariaLabel, aside
         <div className="flex items-center gap-6">
           <div className="relative h-px w-32 bg-line sm:w-48" aria-hidden>
             <span
-              className="absolute inset-y-0 left-0 bg-fg transition-[width] duration-300"
+              className="absolute inset-y-0 left-0 bg-ink transition-[width] duration-300"
               style={{ width: `${Math.max(8, state.progress * 100)}%` }}
             />
           </div>
           {aside}
         </div>
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => scroll(-1)}
-            disabled={state.start}
-            aria-label="Прокрутить назад"
-            className="flex size-11 cursor-pointer items-center justify-center rounded-full border border-line-strong text-fg transition-[background-color,color,border-color] duration-300 hover:border-fg hover:bg-fg hover:text-bg disabled:cursor-default disabled:opacity-30 disabled:hover:border-line-strong disabled:hover:bg-transparent disabled:hover:text-fg"
-          >
-            <ArrowLeft className="size-[18px]" strokeWidth={2} />
+          <button type="button" onClick={() => scroll(-1)} disabled={state.start} aria-label="Прокрутить назад" className={arrow}>
+            <ChevronLeft className="size-5" strokeWidth={1.75} />
           </button>
-          <button
-            type="button"
-            onClick={() => scroll(1)}
-            disabled={state.end}
-            aria-label="Прокрутить вперёд"
-            className="flex size-11 cursor-pointer items-center justify-center rounded-full border border-line-strong text-fg transition-[background-color,color,border-color] duration-300 hover:border-fg hover:bg-fg hover:text-bg disabled:cursor-default disabled:opacity-30 disabled:hover:border-line-strong disabled:hover:bg-transparent disabled:hover:text-fg"
-          >
-            <ArrowRight className="size-[18px]" strokeWidth={2} />
+          <button type="button" onClick={() => scroll(1)} disabled={state.end} aria-label="Прокрутить вперёд" className={arrow}>
+            <ChevronRight className="size-5" strokeWidth={1.75} />
           </button>
         </div>
       </div>

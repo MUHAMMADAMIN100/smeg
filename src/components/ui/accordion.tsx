@@ -29,16 +29,16 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
                 onClick={() => setOpen(isOpen ? null : i)}
                 className="group flex w-full cursor-pointer items-center justify-between gap-6 py-5 text-left"
               >
-                <span className={cn("text-lg font-medium transition-colors", isOpen ? "text-fg" : "text-fg-muted group-hover:text-fg")}>
+                <span className={cn("text-lg font-light transition-colors", isOpen ? "text-ink" : "text-muted group-hover:text-ink")}>
                   {item.q}
                 </span>
                 <span
                   className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-full border border-line-strong text-fg transition-[transform,background-color,color] duration-400 ease-out-expo",
-                    isOpen ? "rotate-45 bg-fg text-bg" : "group-hover:border-fg",
+                    "flex size-9 shrink-0 items-center justify-center rounded-full border border-ink/30 text-ink transition-[transform,background-color,color] duration-400 ease-out-expo",
+                    isOpen ? "rotate-45 bg-ink text-white" : "group-hover:border-ink",
                   )}
                 >
-                  <Plus className="size-4" strokeWidth={2} aria-hidden />
+                  <Plus className="size-4" strokeWidth={1.75} aria-hidden />
                 </span>
               </button>
             </h3>
@@ -54,7 +54,7 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
                   transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                   className="overflow-hidden"
                 >
-                  <p className="max-w-2xl pb-6 leading-relaxed text-fg-muted">{item.a}</p>
+                  <p className="max-w-2xl pb-6 font-light leading-relaxed text-muted">{item.a}</p>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -6,21 +6,20 @@ export type ButtonVariant = "primary" | "accent" | "outline" | "ghost" | "invers
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "group/btn inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight whitespace-nowrap select-none cursor-pointer transition-[background-color,color,border-color,transform,box-shadow] duration-300 ease-out-expo active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
+  "group/btn inline-flex items-center justify-center gap-2.5 text-[12px] font-bold uppercase tracking-[0.14em] whitespace-nowrap select-none cursor-pointer transition-[background-color,color,border-color,transform] duration-300 ease-out-expo active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-fg text-bg hover:bg-smeg hover:text-white",
-  accent:
-    "bg-smeg text-white shadow-[0_12px_30px_-12px_rgba(215,40,47,0.65)] hover:bg-smeg-600 hover:shadow-[0_16px_36px_-12px_rgba(215,40,47,0.7)]",
-  outline: "border border-line-strong text-fg hover:border-fg hover:bg-fg hover:text-bg",
-  ghost: "text-fg hover:bg-surface-2",
-  inverse: "bg-bg text-fg hover:bg-surface-2",
+  primary: "bg-ink text-white hover:bg-ink-700",
+  accent: "bg-ink text-white hover:bg-ink-700",
+  outline: "border border-ink text-ink hover:bg-ink hover:text-white",
+  ghost: "text-ink hover:bg-smoke",
+  inverse: "bg-white text-ink hover:bg-smoke",
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-10 px-4 text-sm",
-  md: "h-12 px-6 text-[15px]",
-  lg: "h-14 px-8 text-base",
+  sm: "h-10 px-5",
+  md: "h-12 px-7",
+  lg: "h-14 px-9",
 };
 
 type CommonProps = {
@@ -56,12 +55,10 @@ export function Button(props: ButtonProps) {
   const classes = cn(base, variants[variant], sizes[size], className);
   const content = (
     <>
-      {icon && iconPosition === "left" && (
-        <span className="transition-transform duration-300 ease-out-expo group-hover/btn:-translate-x-0.5">{icon}</span>
-      )}
+      {icon && iconPosition === "left" && <span className="shrink-0">{icon}</span>}
       <span>{children}</span>
       {icon && iconPosition === "right" && (
-        <span className="transition-transform duration-300 ease-out-expo group-hover/btn:translate-x-0.5">{icon}</span>
+        <span className="shrink-0 transition-transform duration-300 ease-out-expo group-hover/btn:translate-x-0.5">{icon}</span>
       )}
     </>
   );

@@ -1,87 +1,75 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Truck, ShieldCheck, CreditCard } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
-import { productImage } from "@/lib/products";
+import { site } from "@/data/site";
 
-const MILESTONES = [
-  { year: "1948", text: "Витторио Бертаццони основывает Smeg в Гвасталле, Эмилия-Романья. Первые изделия — эмалированные плиты." },
-  { year: "1997", text: "Выходит FAB28 — холодильник с округлыми формами и хромированной ручкой, ставший иконой дизайна." },
-  { year: "2014", text: "Линейка малой техники в стиле 50-х: тостеры, чайники, миксеры и кофемашины в одной палитре." },
-  { year: "Сегодня", text: "Техника Smeg продаётся более чем в 100 странах, а в Таджикистане её представляем мы, официально." },
+const FACTS = [
+  { value: "1948", label: "год основания, Гвасталла" },
+  { value: "100+", label: "стран присутствия" },
+  { value: "10", label: "фирменных цветов" },
 ];
 
-const FAMILY = [
-  { sku: "FAB28RCR6", alt: "Холодильник FAB28 кремовый", className: "left-[2%] bottom-0 w-[36%]", delay: 0 },
-  { sku: "SMF05CREU", alt: "Миксер SMF05 кремовый", className: "left-[40%] bottom-[2%] w-[27%]", delay: 0.1 },
-  { sku: "ECF02CREU", alt: "Кофемашина ECF02 кремовая", className: "right-[2%] bottom-[2%] w-[22%]", delay: 0.2 },
-  { sku: "KLF03CREU", alt: "Чайник KLF03 кремовый", className: "right-[24%] bottom-[30%] w-[18%]", delay: 0.3 },
-  { sku: "TSF01CREU", alt: "Тостер TSF01 кремовый", className: "left-[38%] bottom-[34%] w-[22%]", delay: 0.4 },
+const SERVICES = [
+  { icon: Truck, title: "Доставка и установка", text: "По Истаравшану бесплатно, по Таджикистану за 1–3 дня." },
+  { icon: ShieldCheck, title: "Официальная гарантия", text: "Заводская гарантия SMEG, оригинальные запчасти и сервис." },
+  { icon: CreditCard, title: "Рассрочка", text: "Оформляем через партнёров за несколько минут при заказе." },
 ];
 
+/** «Smeg in the world» со smeg.com, адаптировано под партнёра в Таджикистане. */
 export function About() {
   return (
-    <section id="about" className="scroll-mt-20 overflow-hidden py-20 sm:py-28" aria-labelledby="about-title">
-      <Container>
-        <div className="grid gap-14 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-5">
-            <Reveal>
-              <SectionHeading
-                number="04"
-                eyebrow="О бренде"
-                title={<span id="about-title">Италия, 1948. Красота как функция</span>}
-                description="Smeg — семейная компания из Эмилии-Романьи, где дизайн обсуждают так же серьёзно, как инженерию. Отсюда округлые линии, эмаль и хром, которые хочется трогать."
-              />
-            </Reveal>
-
-            <ol className="mt-12 space-y-0 border-t border-line">
-              {MILESTONES.map((m, i) => (
-                <Reveal as="li" key={m.year} delay={i * 0.08} className="grid grid-cols-[88px_1fr] gap-4 border-b border-line py-5 sm:grid-cols-[110px_1fr]">
-                  <span className="font-display text-xl text-smeg">{m.year}</span>
-                  <p className="text-[15px] leading-relaxed text-fg-muted">{m.text}</p>
-                </Reveal>
+    <section id="about" className="scroll-mt-28" aria-labelledby="about-title">
+      <div className="grid lg:grid-cols-2">
+        <Reveal className="relative min-h-[360px] lg:min-h-[640px]">
+          <Image
+            src="/lifestyle/hero-coffee.jpg"
+            alt="Техника SMEG в интерьере"
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover"
+          />
+        </Reveal>
+        <div className="on-dark flex items-center bg-black px-6 py-16 text-white sm:px-12 lg:px-16 lg:py-24">
+          <Reveal delay={0.1}>
+            <p className="t-label text-white/50">О бренде</p>
+            <h2 id="about-title" className="t-section mt-4">
+              Smeg. Италия, с 1948 года
+            </h2>
+            <p className="mt-6 max-w-lg text-[15px] font-light leading-relaxed text-white/75 sm:text-base">
+              Семейная компания из Эмилии-Романьи, где дизайн обсуждают так же серьёзно, как инженерию.
+              Мы, {site.legalName.toLowerCase()}, привозим технику напрямую с завода, устанавливаем и
+              даём официальную гарантию.
+            </p>
+            <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-white/15 pt-8">
+              {FACTS.map((f) => (
+                <div key={f.label}>
+                  <dt className="sr-only">{f.label}</dt>
+                  <dd className="text-3xl font-light sm:text-4xl">{f.value}</dd>
+                  <dd className="t-small mt-1 text-white/55">{f.label}</dd>
+                </div>
               ))}
-            </ol>
-
-            <Reveal delay={0.2} className="mt-10">
-              <blockquote className="border-l-2 border-smeg pl-5">
-                <p className="font-display text-2xl leading-snug text-fg sm:text-3xl">
-                  «Технология должна быть красивой. Иначе зачем ставить её на видное место?»
-                </p>
-                <footer className="eyebrow mt-4">Философия Smeg · «Technology with style»</footer>
-              </blockquote>
-            </Reveal>
-          </div>
-
-          {/* Семейный портрет техники в кремовом цвете */}
-          <div className="lg:col-span-7">
-            <Reveal delay={0.1} scale className="relative">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[36px] bg-stone dark:bg-surface-2">
-                <div className="absolute inset-x-0 bottom-0 h-[38%] bg-stone-200/70 dark:bg-surface" aria-hidden />
-                <div className="absolute inset-x-0 bottom-[38%] h-px bg-ink/10 dark:bg-cream/10" aria-hidden />
-                <span className="eyebrow absolute top-6 left-7 text-ink/50 dark:text-cream/50">Cream collection · Ø one palette</span>
-                {FAMILY.map((f) => (
-                  <Reveal key={f.sku} delay={0.2 + f.delay} y={40} className={`absolute ${f.className}`}>
-                    <div className="relative aspect-square">
-                      <Image
-                        src={productImage(f.sku)}
-                        alt={f.alt}
-                        fill
-                        sizes="(min-width: 1024px) 24vw, 40vw"
-                        className="product-photo object-contain object-bottom drop-shadow-[0_30px_30px_rgba(21,19,15,0.18)]"
-                        draggable={false}
-                      />
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-4 px-2">
-                <p className="text-sm text-fg-muted">Одна палитра на всю кухню: холодильник, миксер, кофемашина, чайник и тостер в кремовом.</p>
-                <p className="eyebrow">Made in Italy</p>
-              </div>
-            </Reveal>
-          </div>
+            </dl>
+            <Link href="/contacts" className="line-link mt-10 text-white">
+              Приехать в шоурум
+            </Link>
+          </Reveal>
         </div>
+      </div>
+
+      <Container className="py-14 sm:py-16">
+        <ul className="grid gap-8 md:grid-cols-3">
+          {SERVICES.map((s, i) => (
+            <Reveal as="li" key={s.title} delay={i * 0.08} className="flex gap-5 border-t border-line pt-6">
+              <s.icon className="mt-0.5 size-6 shrink-0 text-ink" strokeWidth={1.25} aria-hidden />
+              <div>
+                <h3 className="text-lg font-light">{s.title}</h3>
+                <p className="mt-2 text-[15px] font-light leading-relaxed text-muted">{s.text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </ul>
       </Container>
     </section>
   );

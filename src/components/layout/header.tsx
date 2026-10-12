@@ -1,179 +1,224 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
-import { ArrowUpRight, MessageCircle } from "lucide-react";
+import { ChevronDown, Menu, Search } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { NAV_LINKS } from "@/lib/nav";
-import { contactLinks } from "@/lib/order";
-import { site } from "@/data/site";
+import { SearchOverlay } from "@/components/layout/search-overlay";
+import { MobileMenu } from "@/components/layout/mobile-menu";
+import { NAV_GROUPS, NAV_LINKS, TOP_LINKS_LEFT, TOP_LINKS_RIGHT, type NavGroup } from "@/lib/nav";
+import { categoryById } from "@/data/categories";
+import { getCategoryCounts } from "@/lib/products";
 import { cn } from "@/lib/utils";
+
+type MenuId = NavGroup["id"] | null;
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState<MenuId>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const closeTimer = useRef<number | null>(null);
   const { scrollY } = useScroll();
-  const links = contactLinks();
 
-  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 80));
 
-  // Закрываем меню при переходе на другую страницу (паттерн «состояние из пропсов» без эффекта).
+  // При переходе на другую страницу всё закрываем (паттерн «состояние из пропсов»).
   const [lastPath, setLastPath] = useState(pathname);
   if (lastPath !== pathname) {
     setLastPath(pathname);
-    setOpen(false);
+    setMenu(null);
+    setSearchOpen(false);
+    setDrawerOpen(false);
   }
 
-  // Блокируем прокрутку страницы, пока открыто мобильное меню.
+  const openMenu = useCallback((id: MenuId) => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    setMenu(id);
+  }, []);
+
+  const scheduleClose = useCallback(() => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setMenu(null), 180);
+  }, []);
+
   useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenu(null);
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  const counts = getCategoryCounts();
+  const activeGroup = NAV_GROUPS.find((g) => g.id === menu) ?? null;
 
   return (
     <>
-      <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500",
-          scrolled || open
-            ? "border-b border-line bg-bg/85 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent",
-        )}
-      >
-        <Container className="flex h-[72px] items-center justify-between gap-6">
-          <Logo />
+      <header className="on-dark sticky top-0 z-50 bg-black text-white" onMouseLeave={scheduleClose}>
+        {/* Верхняя строка: ссылки, логотип по центру */}
+        <div
+          className={cn(
+            "hidden overflow-hidden transition-[height] duration-500 ease-out-expo lg:block",
+            scrolled ? "h-0" : "h-[82px]",
+          )}
+        >
+          <Container className="grid h-[82px] grid-cols-[1fr_auto_1fr] items-center">
+            <ul className="flex gap-7">
+              {TOP_LINKS_LEFT.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href as Route} className="t-small text-white/85 transition-colors hover:text-white">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Logo priority />
+            <ul className="flex justify-end gap-7">
+              {TOP_LINKS_RIGHT.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href as Route} className="t-small text-white/85 transition-colors hover:text-white">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </div>
 
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Основное меню">
-            {NAV_LINKS.map((link) => {
-              const active = link.href === "/catalog" && pathname.startsWith("/catalog");
+        {/* Основной ряд */}
+        <Container className="relative flex h-16 items-center justify-between lg:h-[60px]">
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Открыть меню"
+            className="flex size-11 -ml-2 cursor-pointer items-center justify-center lg:hidden"
+          >
+            <Menu className="size-6" strokeWidth={1.5} />
+          </button>
+
+          <nav className="hidden h-full items-center gap-9 lg:flex" aria-label="Основное меню">
+            {NAV_GROUPS.map((g) => {
+              const isOpen = menu === g.id;
               return (
-                <Link
-                  key={link.href}
-                  href={link.href as Route}
-                  className={cn(
-                    "relative rounded-full px-4 py-2 text-[15px] font-medium text-fg-muted transition-colors duration-300 hover:text-fg",
-                    active && "text-fg",
-                  )}
-                >
-                  {link.label}
-                  {active && (
-                    <span className="absolute inset-x-4 -bottom-0.5 h-px bg-smeg" aria-hidden />
-                  )}
-                </Link>
+                <div key={g.id} className="flex h-full items-center" onMouseEnter={() => openMenu(g.id)}>
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={`mega-${g.id}`}
+                    onClick={() => (isOpen ? setMenu(null) : openMenu(g.id))}
+                    className={cn(
+                      "t-nav flex cursor-pointer items-center gap-1.5 border-b py-1 transition-colors duration-300",
+                      isOpen ? "border-white" : "border-transparent hover:border-white/60",
+                    )}
+                  >
+                    {g.label}
+                    <ChevronDown className={cn("size-3.5 transition-transform duration-300", isOpen && "rotate-180")} strokeWidth={1.75} />
+                  </button>
+                </div>
               );
             })}
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href as Route}
+                onMouseEnter={scheduleClose}
+                className="t-nav border-b border-transparent py-1 transition-colors duration-300 hover:border-white/60"
+              >
+                {l.label}
+              </Link>
+            ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
-            <Button
-              href={links.whatsapp}
-              external
-              variant="accent"
-              size="sm"
-              className="hidden sm:inline-flex"
-              icon={<MessageCircle className="size-4" strokeWidth={2} />}
-              iconPosition="left"
-            >
-              Написать
-            </Button>
+          {/* Логотип: по центру на телефоне всегда, на десктопе только когда верхняя строка спрятана */}
+          <Logo compact className="absolute left-1/2 -translate-x-1/2 lg:hidden" priority />
+          <Logo
+            compact
+            className={cn(
+              "absolute left-1/2 hidden -translate-x-1/2 transition-opacity duration-500 lg:flex",
+              scrolled ? "opacity-100" : "pointer-events-none opacity-0",
+            )}
+          />
+
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls="mobile-menu"
-              aria-label={open ? "Закрыть меню" : "Открыть меню"}
-              className="relative flex size-11 cursor-pointer items-center justify-center rounded-full border border-line text-fg transition-colors hover:border-fg lg:hidden"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Поиск"
+              className="flex size-11 cursor-pointer items-center justify-center transition-opacity hover:opacity-70"
             >
-              <span
-                className={cn(
-                  "absolute h-[1.5px] w-5 bg-current transition-transform duration-400 ease-out-expo",
-                  open ? "rotate-45" : "-translate-y-[3.5px]",
-                )}
-              />
-              <span
-                className={cn(
-                  "absolute h-[1.5px] w-5 bg-current transition-transform duration-400 ease-out-expo",
-                  open ? "-rotate-45" : "translate-y-[3.5px]",
-                )}
-              />
+              <Search className="size-[22px]" strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Открыть меню"
+              className="hidden size-11 cursor-pointer items-center justify-center transition-opacity hover:opacity-70 lg:flex"
+            >
+              <Menu className="size-6" strokeWidth={1.5} />
             </button>
           </div>
         </Container>
+
+        {/* Мега-меню */}
+        <AnimatePresence>
+          {activeGroup && (
+            <motion.div
+              id={`mega-${activeGroup.id}`}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onMouseEnter={() => openMenu(activeGroup.id)}
+              onMouseLeave={scheduleClose}
+              className="absolute inset-x-0 top-full hidden border-t border-white/10 bg-black shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)] lg:block"
+            >
+              <Container className="grid grid-cols-12 gap-10 py-10">
+                <div className="col-span-7">
+                  <p className="t-label text-white/50">{activeGroup.label}</p>
+                  <ul className="mt-4 grid grid-cols-2 gap-x-10">
+                    {activeGroup.categories.map((id) => (
+                      <li key={id}>
+                        <Link
+                          href={`/catalog?category=${id}` as Route}
+                          className="group flex items-center justify-between border-b border-white/10 py-3.5 text-[17px] font-light transition-colors hover:text-white/70"
+                        >
+                          {categoryById[id].name}
+                          <span className="t-small text-white/40 transition-colors group-hover:text-white/70">{counts[id]}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href={activeGroup.href as Route} className="line-link mt-8 text-white">
+                    Смотреть все товары
+                  </Link>
+                </div>
+                <div className="col-span-5 flex items-center gap-8">
+                  <div className="relative aspect-square w-52 shrink-0">
+                    <Image
+                      src={`/cutouts/${activeGroup.coverSku.toLowerCase()}.webp`}
+                      alt=""
+                      fill
+                      sizes="208px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="text-[15px] font-light leading-relaxed text-white/70">{activeGroup.caption}</p>
+                </div>
+              </Container>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-menu"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Меню"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-bg pt-[72px] lg:hidden"
-          >
-            <Container className="flex h-full flex-col justify-between py-8">
-              <nav className="flex flex-col" aria-label="Мобильное меню">
-                {NAV_LINKS.map((link, i) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.08 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                    className="border-b border-line"
-                  >
-                    <Link
-                      href={link.href as Route}
-                      onClick={() => setOpen(false)}
-                      className="font-display flex items-center justify-between py-5 text-[2rem] leading-none text-fg"
-                    >
-                      {link.label}
-                      <ArrowUpRight className="size-6 text-fg-faint" strokeWidth={1.5} />
-                    </Link>
-                  </motion.div>
-                ))}
-              </nav>
-
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="space-y-4"
-              >
-                <p className="eyebrow">{site.city} · {site.hoursShort} ежедневно</p>
-                <div className="flex flex-wrap gap-3">
-                  <Button href={links.whatsapp} external variant="accent" className="flex-1">
-                    WhatsApp
-                  </Button>
-                  <Button href={links.telegram} external variant="outline" className="flex-1">
-                    Telegram
-                  </Button>
-                </div>
-                <a href={links.phone} className="block text-lg font-medium text-fg">
-                  {site.phoneDisplay}
-                </a>
-              </motion.div>
-            </Container>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <SearchOverlay open={searchOpen} onClose={closeSearch} />
+      <MobileMenu open={drawerOpen} onClose={closeDrawer} />
     </>
   );
 }

@@ -19,11 +19,19 @@ test.describe("Каталог", () => {
     await expect(page.locator("article")).toHaveCount(3);
     await expect(page.locator('article img[alt*="Розовый"]').first()).toBeVisible();
 
-    await page.getByRole("button", { name: /Сбросить/ }).click();
+    await page.getByRole("button", { name: /Сбросить/ }).first().click();
     await expect(page).toHaveURL(/\/catalog$/);
     await expect(page.locator("article")).toHaveCount(28);
     await expectNoHorizontalScroll(page);
     expect(errors).toEqual([]);
+  });
+
+  test("группа «Крупная техника» ограничивает категории", async ({ page }) => {
+    await page.goto("/catalog?group=major");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Крупная техника");
+    await expect(page.locator("article")).toHaveCount(11);
+    await expect(page.getByRole("button", { name: /^Холодильники/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Тостеры/ })).toHaveCount(0);
   });
 
   test("пустой результат показывает подсказку и сброс", async ({ page }) => {
@@ -34,7 +42,7 @@ test.describe("Каталог", () => {
   });
 
   test("неизвестные параметры игнорируются", async ({ page }) => {
-    await page.goto("/catalog?category=nope&color=neon");
+    await page.goto("/catalog?category=nope&color=neon&group=huge");
     await expect(page.locator("article")).toHaveCount(28);
   });
 

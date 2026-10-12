@@ -16,16 +16,16 @@ export function Price({
     <span className={cn("inline-flex flex-wrap items-baseline gap-x-2", className)}>
       <span
         className={cn(
-          "font-medium tabular-nums text-fg",
-          size === "sm" && "text-[15px]",
-          size === "md" && "text-lg",
-          size === "lg" && "font-display text-3xl sm:text-4xl",
+          "tabular-nums text-ink",
+          size === "sm" && "text-[15px] font-semibold",
+          size === "md" && "text-lg font-semibold",
+          size === "lg" && "text-3xl font-light sm:text-4xl",
         )}
       >
         {formatPrice(value)}
       </span>
       {oldValue && oldValue > value && (
-        <span className="text-sm tabular-nums text-fg-faint line-through">{formatPrice(oldValue)}</span>
+        <span className="text-sm tabular-nums text-faint line-through">{formatPrice(oldValue)}</span>
       )}
     </span>
   );

@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { productImage } from "@/lib/products";
 
-/** Все файлы .tsx/.ts в src/components и src/data. */
+/** Все файлы .tsx/.ts в папке. */
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     const full = path.join(dir, name);
@@ -15,7 +15,8 @@ function walk(dir: string, out: string[] = []): string[] {
 
 describe("артикулы в компонентах", () => {
   it("каждый артикул, упомянутый в коде, имеет фото в public/products", () => {
-    const files = [...walk(path.join(process.cwd(), "src/components")), ...walk(path.join(process.cwd(), "src/data"))];
+    // Каталог проверяется в data.test.ts, здесь только артикулы, зашитые в компоненты.
+    const files = walk(path.join(process.cwd(), "src/components"));
     const missing: string[] = [];
     for (const file of files) {
       const text = readFileSync(file, "utf8");

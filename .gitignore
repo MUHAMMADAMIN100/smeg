@@ -46,3 +46,4 @@ next-env.d.ts
 /playwright-report/
 /scripts/fetch.log
 /e2e/run.log
+/e2e/server.log

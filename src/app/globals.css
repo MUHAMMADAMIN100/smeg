@@ -133,12 +133,13 @@ body {
   width: 48px;
   height: 1px;
   background: currentColor;
-  transition: width 0.4s var(--ease-out-expo);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-out-expo);
 }
 
 .line-link:hover::before,
 .group:hover .line-link::before {
-  width: 72px;
+  transform: scaleX(1.5);
 }
 
 /* ---------- Фото товаров ---------- */

@@ -47,3 +47,4 @@ next-env.d.ts
 /scripts/fetch.log
 /e2e/run.log
 /e2e/server.log
+/e2e/dev.log

@@ -83,7 +83,7 @@ export function Hero() {
         </div>
       </div>
 
-      <Container className="relative grid min-h-[calc(100dvh-72px)] grid-cols-1 items-center gap-10 py-12 lg:grid-cols-12 lg:gap-6 lg:py-8">
+      <Container className="relative grid min-h-[min(calc(100dvh-72px),1000px)] grid-cols-1 items-center gap-10 py-12 lg:grid-cols-12 lg:gap-6 lg:py-8">
         {/* Текст */}
         <motion.div style={{ opacity: textOpacity }} className="relative z-10 lg:col-span-7">
           <motion.p

@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { Route } from "next";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { X } from "lucide-react";
 import { Container } from "@/components/ui/container";
@@ -18,8 +17,6 @@ const categoryIds = new Set(categories.map((c) => c.id));
 
 export function CatalogView() {
   const params = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const reduce = useReducedMotion();
 
   const rawCategory = params.get("category");
@@ -33,16 +30,16 @@ export function CatalogView() {
 
   const setParam = useCallback(
     (key: "category" | "color", value: string | null) => {
-      const next = new URLSearchParams(params.toString());
+      const next = new URLSearchParams(window.location.search);
       if (value) next.set(key, value);
       else next.delete(key);
       const query = next.toString();
-      router.replace(`${pathname}${query ? `?${query}` : ""}` as Route, { scroll: false });
+      window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
     },
-    [params, pathname, router],
+    [],
   );
 
-  const reset = () => router.replace(pathname as Route, { scroll: false });
+  const reset = () => window.history.replaceState(null, "", window.location.pathname);
   const hasFilters = Boolean(category || color);
 
   return (

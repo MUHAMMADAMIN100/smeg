@@ -2,8 +2,7 @@
 
 import { useCallback, useState } from "react";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { Route } from "next";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, MessageCircle, Phone, Send, ShieldCheck, Truck, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -25,8 +24,6 @@ const TRUST = [
 
 export function ProductView({ product }: { product: Product }) {
   const params = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const reduce = useReducedMotion();
 
   const initial = getVariant(product, params.get("color") as ColorId | null).color;
@@ -38,11 +35,11 @@ export function ProductView({ product }: { product: Product }) {
   const select = useCallback(
     (next: ColorId) => {
       setColor(next);
-      const search = new URLSearchParams(params.toString());
+      const search = new URLSearchParams(window.location.search);
       search.set("color", next);
-      router.replace(`${pathname}?${search.toString()}` as Route, { scroll: false });
+      window.history.replaceState(null, "", `${window.location.pathname}?${search.toString()}`);
     },
-    [params, pathname, router],
+    [],
   );
 
   const links = orderLinks({

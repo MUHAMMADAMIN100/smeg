@@ -33,6 +33,12 @@ export function ProductCard({
   sizes = "(min-width: 1280px) 22vw, (min-width: 768px) 33vw, 80vw",
 }: ProductCardProps) {
   const [color, setColor] = useState<ColorId>(getVariant(product, initialColor).color);
+  // Фильтр каталога сменил цвет: подхватываем его без эффекта, паттерном «состояние из пропсов».
+  const [prevInitial, setPrevInitial] = useState(initialColor);
+  if (initialColor !== prevInitial) {
+    setPrevInitial(initialColor);
+    if (initialColor && product.variants.some((v) => v.color === initialColor)) setColor(initialColor);
+  }
   const variant = getVariant(product, color);
   const colorMeta = colorById[variant.color];
   const reduce = useReducedMotion();

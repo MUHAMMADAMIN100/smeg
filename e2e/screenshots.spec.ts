@@ -3,6 +3,7 @@ import { scrollThrough } from "./helpers";
 
 /** Скриншоты для визуальной проверки, не сравнение. */
 test.describe("Скриншоты", () => {
+  test.setTimeout(240_000);
   test("главная, каталог и товар в обеих темах", async ({ page }, testInfo) => {
     const tag = testInfo.project.name;
     for (const theme of ["light", "dark"] as const) {

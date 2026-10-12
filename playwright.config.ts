@@ -15,6 +15,7 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     locale: "ru-RU",
+    channel: "chromium",
   },
   webServer: {
     command: `npx next start -p ${PORT}`,

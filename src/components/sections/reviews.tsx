@@ -10,7 +10,7 @@ import { reviews } from "@/data/reviews";
 import { site } from "@/data/site";
 import { productImage } from "@/lib/products";
 
-const FEED = ["FAB28RPK6", "TSF01PGEU", "KLF03RDEU", "SMF05PBEU", "ECF02CREU", "FAB10RYW6"];
+const FEED = ["FAB28RPK6", "TSF01PGEU", "KLF03RDEU", "SMF05PBEU", "ECF02CREU", "FAB5RPG6"];
 
 export function Reviews() {
   return (

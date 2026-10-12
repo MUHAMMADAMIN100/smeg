@@ -13,6 +13,9 @@ import { getAllSlugs, getProduct, getRelated, productImage } from "@/lib/product
 
 type Params = { slug: string };
 
+/** Все товары известны на этапе сборки: чужие slug сразу получают 404. */
+export const dynamicParams = false;
+
 export function generateStaticParams(): Params[] {
   return getAllSlugs().map((slug) => ({ slug }));
 }
@@ -41,7 +44,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
   const related = getRelated(product, 4);
 
   return (
-    <article className="pb-24 pt-8 sm:pt-10">
+    <div className="pb-24 pt-8 sm:pt-10">
       <Container>
         <nav aria-label="Хлебные крошки" className="mb-8 flex flex-wrap items-center gap-1.5 text-sm text-fg-muted">
           <Link href="/" className="transition-colors hover:text-fg">Главная</Link>
@@ -112,6 +115,6 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           </div>
         )}
       </Container>
-    </article>
+    </div>
   );
 }

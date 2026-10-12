@@ -29,7 +29,7 @@ export async function scrollThrough(page: Page) {
     const step = Math.max(400, window.innerHeight * 0.8);
     for (let y = 0; y < document.body.scrollHeight; y += step) {
       window.scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 60));
+      await new Promise((r) => setTimeout(r, 150));
     }
     window.scrollTo(0, 0);
   });
